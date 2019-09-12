@@ -2,27 +2,30 @@
     import ReactDOM from 'react-dom';
     import './index.css';
     
-    function Square(props){
+    function Square(props){ //Esta função criará as nove posicões do jogo da velha, retornando uma posição para cada chamada
         return (
-            <button onClick={props.onClick} className="square">
+            <button className="square" onClick={props.onClick}>
                 {props.value} 
             </button>
         );
+        //props.onClick é a função handleClick vinda do componente Game
     }
     
     class Board extends React.Component {
 
         renderSquare(i) {
+            /*Esta função faz chamada ao componente Square e irá retornar o mesmo. Passa como props, value que é a posição clicada pelo usuário
+             e a função que será executada, quando uma posição do jogo for clicada*/
             return <Square 
                         value={this.props.squares[i]}
                         onClick={() => this.props.onClick(i)}
                     />;
         }
-    
+        
+        //Fazendo nove chamadas  para renderSquare, para criar as novo posições do jogo da velha e renderizar na tela
         render() {
             return (
                 <div>
-                <div className="status">{status}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
@@ -45,41 +48,51 @@
     
     class Game extends React.Component {
         constructor(props){
-            super(props);
+            super(props);       //Passando os parâmetros para o construtor PAI da classe React.Component, 
             this.state = {
-                history: [{
-                    squares: Array(9).fill(null),
+                history: [{     //Criando o state para armazenar as jogadas do jogo
+                    squares: Array(9).fill(null), //Squares será o vetor responsável por guardar as nove posições do jogo no state
                 }],
-                xIsNext: true,
+                stepNumber: 0,  //Para visualizar a jogada que está ocorrendo no momento
+                xIsNext: true,  //Responsável por selecionar de quem será a jogada, do 'X' ou 'O'
             }
         }
 
-        handleClick(i){
-            const history = this.state.history;
-            const current = history[history.length -1];
-            const squares = current.squares.splice(); //Fazendo uma cópia do array original de squares
+        //Função que será executada ao clique do usuário em uma posição. Esta função será passada como prop para o componente Board e consequentemente para Square
+        handleClick(i){ 
+            const history = this.state.history.slice(0, this.state.stepNumber + 1); //Recuperando o histórico até o limite da posição do momento/atual
+            const current = history[history.length -1]; //Obtendo a confiuguração atual das nove posições
+            const squares = current.squares.slice(); //Fazendo uma cópia do array de squares/quadrados atuais
 
-            if(calculateWinner(squares) || squares[i])
+            if(calculateWinner(squares) || squares[i]) //Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
                 return;
-
-            squares[i] = this.state.xIsNext ? 'X' : 'O';
+            
+            squares[i] = this.state.xIsNext ? `X` : `O`; //Atualizando a posição que o usuário clicar com o valor 
             this.setState({
-                history: history.concat([{ squares: squares }]),
-                xIsNext: !this.state.xIsNext,
+                history: history.concat([{ squares: squares }]),    //Atualizando o histórico, inserindo um novo vetor de square
+                stepNumber: history.length,                         //Atualizando a jogada atual
+                xIsNext: !this.state.xIsNext,                       //Atualizando de quem é a vez de jogar
+            });
+        }
+
+        jumpTo(step){ //Função utilizada para voltar para as jogadas passadas
+            this.setState({
+                stepNumber: step,           //Atualiza a jogada atual
+                xIsNext: (step % 2) === 0,  //Se o número for par, recebe true
             });
         }
 
         render() {
-            const history = this.state.history;
-            const current = history[history.length - 1];
-            const winner = calculateWinner(current.squares);
+            const history = this.state.history.slice(0, this.state.stepNumber + 1);
+            const current = history[this.state.stepNumber]; //Obtendo a jogada atual
+            const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
 
             const moves = history.map((step, move) => {
-                const desc = move ? `Go to move # ${move}` : `Go to game start`;
+                const descricao = move ? `Go to move # ${move}` : `Go to game start`;
                 return(
-                    <li>
+                    <li key={move}>
                         <button onClick={() => this.jumpTo(move)}> 
-                            {desc}
+                            {descricao}
                         </button>
                     </li>
                 )
@@ -101,9 +114,26 @@
                         <div>{status}</div>
                         <ol>{moves}</ol>
                     </div>
+                    <Position value={this.state.history[this.state.stepNumber].squares}></Position>
                 </div>
             );
         }
+    }
+
+    function Position(props){
+        let position;
+        props.value.forEach((element, index) => {
+            if(index +1 >= 0 && index +1 <= 3){
+                 position = `[1,${index}]`;                
+            }
+        });
+
+        return(
+            <div>
+                <h3>Posições dos cliques</h3>
+                <ol>{position}</ol>
+            </div>
+        );
     }
 
     function calculateWinner(squares) {
