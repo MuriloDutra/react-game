@@ -47,4 +47,12 @@ body {
   
   .game-info {
     margin-left: 20px;
-  }  
+  }
+  
+  .position-info{
+    margin-left: 20px;
+  }
+
+  .position-info h4{
+    margin: 0;
+  }

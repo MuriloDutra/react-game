@@ -2,6 +2,38 @@
     import ReactDOM from 'react-dom';
     import './index.css';
     
+    /*class Position extends React.Component{
+        constructor(props){
+            super(props);
+            this.state = { step: Array(9).fill(null), stepNumber: 0 }
+        }
+
+        fillArrayPositions(){
+            let positions = verifyPositions(this.props.value);
+        
+            let array = positions.map((position) => {
+                if(position)
+                    return position;
+            });
+
+            let list = array.map((position) => {
+                return ( <li key={}>{position}</li> )
+            });
+
+            return list;
+        }
+
+        render(){
+            let list = this.fillArrayPositions();
+            return(
+                <div>
+                    <h4>Posições dos cliques</h4>
+                    <ol>{list}</ol>
+                </div>
+            )
+        }
+    }*/
+
     function Square(props){ //Esta função criará as nove posicões do jogo da velha, retornando uma posição para cada chamada
         return (
             <button className="square" onClick={props.onClick}>
@@ -55,6 +87,7 @@
                 }],
                 stepNumber: 0,  //Para visualizar a jogada que está ocorrendo no momento
                 xIsNext: true,  //Responsável por selecionar de quem será a jogada, do 'X' ou 'O'
+                positions: [], 
             }
         }
 
@@ -63,15 +96,20 @@
             const history = this.state.history.slice(0, this.state.stepNumber + 1); //Recuperando o histórico até o limite da posição do momento/atual
             const current = history[history.length -1]; //Obtendo a confiuguração atual das nove posições
             const squares = current.squares.slice(); //Fazendo uma cópia do array de squares/quadrados atuais
+            const positions = this.state.positions;
 
             if(calculateWinner(squares) || squares[i]) //Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
                 return;
             
-            squares[i] = this.state.xIsNext ? `X` : `O`; //Atualizando a posição que o usuário clicar com o valor 
+            squares[i] = this.state.xIsNext ? `X` : `O`; //Atualizando a posição que o usuário clicar com o valor
+            positions.push(i +1);
+            console.log(verifyPositions(positions));
+
             this.setState({
                 history: history.concat([{ squares: squares }]),    //Atualizando o histórico, inserindo um novo vetor de square
                 stepNumber: history.length,                         //Atualizando a jogada atual
                 xIsNext: !this.state.xIsNext,                       //Atualizando de quem é a vez de jogar
+                positions: positions,
             });
         }
 
@@ -88,11 +126,11 @@
             const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
 
             const moves = history.map((step, move) => {
-                const descricao = move ? `Go to move # ${move}` : `Go to game start`;
+                const description = move ? `Go to move # ${move}` : `Go to game start`;
                 return(
                     <li key={move}>
                         <button onClick={() => this.jumpTo(move)}> 
-                            {descricao}
+                            {description}
                         </button>
                     </li>
                 )
@@ -101,7 +139,7 @@
             let status;
 
             if(winner)
-                status = `Winner: ${winner}`;
+                status = `WINNER: ${winner}`;
             else
                 status =  `Next player: ${this.state.xIsNext ? `X` : `O`}`;
 
@@ -114,26 +152,13 @@
                         <div>{status}</div>
                         <ol>{moves}</ol>
                     </div>
-                    <Position value={this.state.history[this.state.stepNumber].squares}></Position>
+                    <div className="position-info">
+                        <h4>Posições das jogadas</h4>
+                        <ol></ol>
+                    </div>
                 </div>
             );
         }
-    }
-
-    function Position(props){
-        let position;
-        props.value.forEach((element, index) => {
-            if(index +1 >= 0 && index +1 <= 3){
-                 position = `[1,${index}]`;                
-            }
-        });
-
-        return(
-            <div>
-                <h3>Posições dos cliques</h3>
-                <ol>{position}</ol>
-            </div>
-        );
     }
 
     function calculateWinner(squares) {
@@ -155,6 +180,25 @@
           }
         }
         return null;
+    }
+
+    function verifyPositions(positions){
+        let ret = [];
+        let column;
+        positions.forEach((position) => {
+            position % 3 == 0 ? column = 3 : column = position % 3; //Se for múltiplo de 3, 
+
+            if(position >= 1 && position <= 3 && position)
+                ret.push(`[1,${column}]`);
+        
+            if(position >= 4 && position <= 6 && position)
+                ret.push(`[2,${column}]`);
+
+            if(position >= 7 && position <= 9 && position)
+                ret.push(`[3,${column}]`);
+        });
+
+        return ret;
     }
     
     // ========================================
