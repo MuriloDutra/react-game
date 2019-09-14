@@ -2,37 +2,6 @@
     import ReactDOM from 'react-dom';
     import './index.css';
     
-    /*class Position extends React.Component{
-        constructor(props){
-            super(props);
-            this.state = { step: Array(9).fill(null), stepNumber: 0 }
-        }
-
-        fillArrayPositions(){
-            let positions = verifyPositions(this.props.value);
-        
-            let array = positions.map((position) => {
-                if(position)
-                    return position;
-            });
-
-            let list = array.map((position) => {
-                return ( <li key={}>{position}</li> )
-            });
-
-            return list;
-        }
-
-        render(){
-            let list = this.fillArrayPositions();
-            return(
-                <div>
-                    <h4>Posições dos cliques</h4>
-                    <ol>{list}</ol>
-                </div>
-            )
-        }
-    }*/
 
     function Square(props){ //Esta função criará as nove posicões do jogo da velha, retornando uma posição para cada chamada
         return (
@@ -53,27 +22,18 @@
                         onClick={() => this.props.onClick(i)}
                     />;
         }
-        
+
+        createBoard(quantity){
+            let elements = [];
+            for(var i = 1; i <= quantity; i++){
+                elements.push(this.renderSquare(i));
+            }
+        }
+
         //Fazendo nove chamadas  para renderSquare, para criar as novo posições do jogo da velha e renderizar na tela
         render() {
             return (
-                <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-                </div>
+              //CONTINUAR  
             );
         }
     }
