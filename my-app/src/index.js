@@ -92,18 +92,17 @@
         }
 
         //Função que será executada ao clique do usuário em uma posição. Esta função será passada como prop para o componente Board e consequentemente para Square
-        handleClick(i){ 
+        handleClick(i){
             const history = this.state.history.slice(0, this.state.stepNumber + 1); //Recuperando o histórico até o limite da posição do momento/atual
             const current = history[history.length -1]; //Obtendo a confiuguração atual das nove posições
             const squares = current.squares.slice(); //Fazendo uma cópia do array de squares/quadrados atuais
-            const positions = this.state.positions;
-
+            let positions = this.state.positions;
+            
             if(calculateWinner(squares) || squares[i]) //Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
                 return;
             
-            squares[i] = this.state.xIsNext ? `X` : `O`; //Atualizando a posição que o usuário clicar com o valor
-            positions.push(i +1);
-            console.log(verifyPositions(positions));
+            squares[i] = this.state.xIsNext ? `X` : `O`;//Atualizando a posição que o usuário clicar com o valor 'X' ou 'O'
+            positions.push(verifyPosition(i +1));       //Obtendo a posição que o usuário clicou para criar a cronologia de posições clicadas pelo mesmo
 
             this.setState({
                 history: history.concat([{ squares: squares }]),    //Atualizando o histórico, inserindo um novo vetor de square
@@ -114,17 +113,19 @@
         }
 
         jumpTo(step){ //Função utilizada para voltar para as jogadas passadas
+            console.log(step);
             this.setState({
                 stepNumber: step,           //Atualiza a jogada atual
                 xIsNext: (step % 2) === 0,  //Se o número for par, recebe true
+                positions: this.state.positions.slice(0, step),
             });
         }
 
         render() {
+            let status;
             const history = this.state.history.slice(0, this.state.stepNumber + 1);
             const current = history[this.state.stepNumber]; //Obtendo a jogada atual
             const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
-
             const moves = history.map((step, move) => {
                 const description = move ? `Go to move # ${move}` : `Go to game start`;
                 return(
@@ -136,7 +137,12 @@
                 )
             });
 
-            let status;
+            const list = this.state.positions.map((position, index) => { 
+                if(index +1 == this.state.stepNumber)
+                    return ( <li className="black-word" key={index}> {position} </li> ); //Deixando em negrito as posições da última jogada
+                
+                return ( <li key={index}> {position} </li> );
+            });
 
             if(winner)
                 status = `WINNER: ${winner}`;
@@ -154,7 +160,7 @@
                     </div>
                     <div className="position-info">
                         <h4>Posições das jogadas</h4>
-                        <ol></ol>
+                        <ol>{ list }</ol>
                     </div>
                 </div>
             );
@@ -182,23 +188,18 @@
         return null;
     }
 
-    function verifyPositions(positions){
-        let ret = [];
+    function verifyPosition(position){
         let column;
-        positions.forEach((position) => {
-            position % 3 == 0 ? column = 3 : column = position % 3; //Se for múltiplo de 3, 
+        position % 3 == 0 ? column = 3 : column = position % 3; //Se for múltiplo de 3
 
-            if(position >= 1 && position <= 3 && position)
-                ret.push(`[1,${column}]`);
-        
-            if(position >= 4 && position <= 6 && position)
-                ret.push(`[2,${column}]`);
+        if(position >= 1 && position <= 3 && position)
+            return `[${column}, 1]`;
+    
+        if(position >= 4 && position <= 6 && position)
+            return `[${column}, 2]`;
 
-            if(position >= 7 && position <= 9 && position)
-                ret.push(`[3,${column}]`);
-        });
-
-        return ret;
+        if(position >= 7 && position <= 9 && position)
+            return `[${column}, 3]`;
     }
     
     // ========================================
