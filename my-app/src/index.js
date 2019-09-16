@@ -20,20 +20,36 @@
             return <Square 
                         value={this.props.squares[i]}
                         onClick={() => this.props.onClick(i)}
+                        key={i}
                     />;
         }
 
         createBoard(quantity){
             let elements = [];
-            for(var i = 1; i <= quantity; i++){
+
+            for(let i = 0; i <= quantity; i++)
                 elements.push(this.renderSquare(i));
-            }
+            
+            return elements;
         }
 
         //Fazendo nove chamadas  para renderSquare, para criar as novo posições do jogo da velha e renderizar na tela
         render() {
+            let squares = this.createBoard(9);
+            let lines = [];
+            const retLines = squares.map((square, index) => {
+                lines.push(square);
+                if((index +1) % 3 == 0){
+                    let aux = lines;
+                    lines = [];
+                    return ( <div key={index}> { aux }</div> );
+                }
+            });
+
             return (
-              //CONTINUAR  
+                <div>
+                    {retLines}
+                </div>
             );
         }
     }
@@ -81,6 +97,10 @@
             });
         }
 
+        reverse(moves){
+            console.log(moves.reverse());                           //CONTINUAR A PARTIR DAQUI
+        }
+
         render() {
             let status;
             const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -90,7 +110,7 @@
                 const description = move ? `Go to move # ${move}` : `Go to game start`;
                 return(
                     <li key={move}>
-                        <button onClick={() => this.jumpTo(move)}> 
+                        <button onClick={() => this.jumpTo(move)} className="btn btn-secondary"> 
                             {description}
                         </button>
                     </li>
@@ -107,7 +127,7 @@
             if(winner)
                 status = `WINNER: ${winner}`;
             else
-                status =  `Next player: ${this.state.xIsNext ? `X` : `O`}`;
+                status =  `Player: ${this.state.xIsNext ? `X` : `O`}`;
 
             return (
                 <div className="game">
@@ -115,7 +135,8 @@
                         <Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
                     </div>
                     <div className="game-info">
-                        <div>{status}</div>
+                        <div className="black-word">{status}</div>
+                        <button className="btn btn-primary" onClick={() => this.reverse(moves)}>Inverter ordem</button>
                         <ol>{moves}</ol>
                     </div>
                     <div className="position-info">
