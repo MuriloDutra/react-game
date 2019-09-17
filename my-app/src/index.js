@@ -63,7 +63,8 @@
                 }],
                 stepNumber: 0,  //Para visualizar a jogada que está ocorrendo no momento
                 xIsNext: true,  //Responsável por selecionar de quem será a jogada, do 'X' ou 'O'
-                positions: [], 
+                positions: [],
+                moves: []
             }
         }
 
@@ -85,27 +86,27 @@
                 stepNumber: history.length,                         //Atualizando a jogada atual
                 xIsNext: !this.state.xIsNext,                       //Atualizando de quem é a vez de jogar
                 positions: positions,
+                moves: this.createListOfPlays(history.length +1)
             });
         }
 
         jumpTo(step){ //Função utilizada para voltar para as jogadas passadas
-            console.log(step);
             this.setState({
                 stepNumber: step,           //Atualiza a jogada atual
                 xIsNext: (step % 2) === 0,  //Se o número for par, recebe true
                 positions: this.state.positions.slice(0, step),
+                moves: this.createListOfPlays(step +1)
             });
         }
 
         reverse(moves){
-            console.log(moves.reverse());                           //CONTINUAR A PARTIR DAQUI
+            this.setState({
+                moves: moves.reverse(),
+            });
         }
 
-        render() {
-            let status;
-            const history = this.state.history.slice(0, this.state.stepNumber + 1);
-            const current = history[this.state.stepNumber]; //Obtendo a jogada atual
-            const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
+        createListOfPlays(step){
+            const history = this.state.history.slice(0, step);
             const moves = history.map((step, move) => {
                 const description = move ? `Go to move # ${move}` : `Go to game start`;
                 return(
@@ -117,6 +118,15 @@
                 )
             });
 
+            return moves;
+        }
+
+        render() {
+            let status;
+            const history = this.state.history.slice(0, this.state.stepNumber + 1);
+            const current = history[this.state.stepNumber]; //Obtendo a jogada atual
+            const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
+            
             const list = this.state.positions.map((position, index) => { 
                 if(index +1 == this.state.stepNumber)
                     return ( <li className="black-word" key={index}> {position} </li> ); //Deixando em negrito as posições da última jogada
@@ -136,8 +146,8 @@
                     </div>
                     <div className="game-info">
                         <div className="black-word">{status}</div>
-                        <button className="btn btn-primary" onClick={() => this.reverse(moves)}>Inverter ordem</button>
-                        <ol>{moves}</ol>
+                        <button className="btn btn-primary" onClick={() => this.reverse(this.state.moves)}>Inverter ordem</button>
+                        <ol>{this.state.moves}</ol>
                     </div>
                     <div className="position-info">
                         <h4>Posições das jogadas</h4>
