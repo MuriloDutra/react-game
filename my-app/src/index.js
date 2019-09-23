@@ -17,24 +17,26 @@
         renderSquare(i) {
             /*Esta função faz chamada ao componente Square e irá retornar o mesmo. Passa como props, value que é a posição clicada pelo usuário
              e a função que será executada, quando uma posição do jogo for clicada*/
+
             return <Square 
                         value={this.props.squares[i]}
                         onClick={() => this.props.onClick(i)}
                         key={i}
+                        //CONTINUAR AQUI
                     />;
         }
 
         createBoard(quantity){
-            let elements = [];
+            let elements = [];            
 
             for(let i = 0; i <= quantity; i++)
-                elements.push(this.renderSquare(i));
-            
+                    elements.push(this.renderSquare(i));
+                
             return elements;
         }
 
         //Fazendo nove chamadas  para renderSquare, para criar as novo posições do jogo da velha e renderizar na tela
-        render() {
+        render() {            
             let squares = this.createBoard(9);
             let lines = [];
             const retLines = squares.map((square, index) => {
@@ -64,7 +66,8 @@
                 stepNumber: 0,  //Para visualizar a jogada que está ocorrendo no momento
                 xIsNext: true,  //Responsável por selecionar de quem será a jogada, do 'X' ou 'O'
                 positions: [],
-                moves: []
+                moves: [],
+                posititonsOfWinner: []
             }
         }
 
@@ -75,8 +78,9 @@
             const squares = current.squares.slice(); //Fazendo uma cópia do array de squares/quadrados atuais
             let positions = this.state.positions;
             
-            if(calculateWinner(squares) || squares[i]) //Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
+            if(calculateWinner(squares) || squares[i]){//Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
                 return;
+            }
             
             squares[i] = this.state.xIsNext ? `X` : `O`;//Atualizando a posição que o usuário clicar com o valor 'X' ou 'O'
             positions.push(verifyPosition(i +1));       //Obtendo a posição que o usuário clicou para criar a cronologia de posições clicadas pelo mesmo
@@ -135,14 +139,14 @@
             });
 
             if(winner)
-                status = `WINNER: ${winner}`;
+                status = `WINNER: ${winner[0]}`;
             else
                 status =  `Player: ${this.state.xIsNext ? `X` : `O`}`;
 
             return (
                 <div className="game">
                     <div className="game-board">
-                        <Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
+                        <Board squares={current.squares} positionsWinner={winner} onClick={(i) => this.handleClick(i)}/>
                     </div>
                     <div className="game-info">
                         <div className="black-word">{status}</div>
@@ -173,7 +177,7 @@
         for (let i = 0; i < lines.length; i++) {
           const [a, b, c] = lines[i];
           if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+            return [squares[i], lines[i]];
           }
         }
         return null;
