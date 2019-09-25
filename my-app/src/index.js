@@ -3,9 +3,12 @@
     import './index.css';
     
 
-    function Square(props){ //Esta função criará as nove posicões do jogo da velha, retornando uma posição para cada chamada
+    function Square(props){ //Esta função criará as nove posicões do jogo da velha, retornando uma posição para cada chamada        
+        let className = '';
+        props.winner ? className = 'square winnerSquares' : className = 'square';
+
         return (
-            <button className="square" onClick={props.onClick}>
+            <button className={className} onClick={props.onClick}>
                 {props.value} 
             </button>
         );
@@ -14,15 +17,21 @@
     
     class Board extends React.Component {
 
+    /*renderSquare() faz chamada ao componente Square e irá retornar o mesmo. Passa como props, value que é a posição clicada pelo usuário 
+    e a função que será executada, quando uma posição do jogo for clicada*/
         renderSquare(i) {
-            /*Esta função faz chamada ao componente Square e irá retornar o mesmo. Passa como props, value que é a posição clicada pelo usuário
-             e a função que será executada, quando uma posição do jogo for clicada*/
+            let thereIsAWinner = false;
+            
+             if(this.props.positionsWinner){
+                let positions = this.props.positionsWinner[1];
+                positions.some(number => number == i) ? thereIsAWinner = true : thereIsAWinner = false;
+            }
 
             return <Square 
                         value={this.props.squares[i]}
                         onClick={() => this.props.onClick(i)}
                         key={i}
-                        //CONTINUAR AQUI
+                        winner={thereIsAWinner} 
                     />;
         }
 
@@ -37,7 +46,7 @@
 
         //Fazendo nove chamadas  para renderSquare, para criar as novo posições do jogo da velha e renderizar na tela
         render() {            
-            let squares = this.createBoard(9);
+            let squares = this.createBoard(8);
             let lines = [];
             const retLines = squares.map((square, index) => {
                 lines.push(square);
@@ -177,7 +186,7 @@
         for (let i = 0; i < lines.length; i++) {
           const [a, b, c] = lines[i];
           if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return [squares[i], lines[i]];
+            return [squares[a], lines[i]];
           }
         }
         return null;
