@@ -87,9 +87,8 @@
             const squares = current.squares.slice(); //Fazendo uma cópia do array de squares/quadrados atuais
             let positions = this.state.positions;
             
-            if(calculateWinner(squares) || squares[i]){//Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
+            if(calculateWinner(squares) || squares[i]) //Caso já haja um vencedor ou a posição clicada já tenha sido escolhida
                 return;
-            }
             
             squares[i] = this.state.xIsNext ? `X` : `O`;//Atualizando a posição que o usuário clicar com o valor 'X' ou 'O'
             positions.push(verifyPosition(i +1));       //Obtendo a posição que o usuário clicou para criar a cronologia de posições clicadas pelo mesmo
@@ -139,7 +138,7 @@
             const history = this.state.history.slice(0, this.state.stepNumber + 1);
             const current = history[this.state.stepNumber]; //Obtendo a jogada atual
             const winner = calculateWinner(current.squares);//Obtendo vencedor, caso haja
-            
+
             const list = this.state.positions.map((position, index) => { 
                 if(index +1 == this.state.stepNumber)
                     return ( <li className="black-word" key={index}> {position} </li> ); //Deixando em negrito as posições da última jogada
@@ -149,8 +148,12 @@
 
             if(winner)
                 status = `WINNER: ${winner[0]}`;
-            else
-                status =  `Player: ${this.state.xIsNext ? `X` : `O`}`;
+            else{
+                if(current.squares.some(position => position == null) == false)//Se retornar FALSE, todas as posições do jogo estão ocupadas e não houve vencedor
+                    status = 'EMPATE!'
+                else
+                    status =  `Player: ${this.state.xIsNext ? `X` : `O`}`;
+            }
 
             return (
                 <div className="game">
